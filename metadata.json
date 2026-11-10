@@ -1,0 +1,6 @@
+{
+  "name": "CampusFind – Multi-College Lost & Found System",
+  "description": "A centralized lost and found management platform connecting students, college administrators, and super admins across universities.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
