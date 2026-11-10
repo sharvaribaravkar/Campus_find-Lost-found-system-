@@ -20,7 +20,7 @@ interface XamppExportModalProps {
 }
 
 export const XamppExportModal: React.FC<XamppExportModalProps> = ({ isOpen, onClose }) => {
-  const [activeTab, setActiveTab] = useState<'sql' | 'config' | 'auth' | 'instructions' | 'credentials' | 'structure'>('instructions');
+  const [activeTab, setActiveTab] = useState<'sql' | 'config' | 'auth' | 'instructions' | 'credentials' | 'structure' | 'github'>('github');
   const [copied, setCopied] = useState(false);
 
   if (!isOpen) return null;
@@ -310,6 +310,15 @@ function verifyCollegeAccess(int $targetCollegeId): bool {
         {/* Tab switcher */}
         <div className="bg-slate-100 p-2 border-b border-slate-200 flex flex-wrap gap-1 text-xs shrink-0 font-medium">
           <button
+            onClick={() => setActiveTab('github')}
+            className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
+              activeTab === 'github' ? 'bg-white text-slate-900 shadow-sm font-bold border border-slate-200' : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            <Server className="w-3.5 h-3.5 text-sky-600" />
+            Fix GitHub Blank Page
+          </button>
+          <button
             onClick={() => setActiveTab('instructions')}
             className={`px-3 py-1.5 rounded-lg transition flex items-center gap-1.5 ${
               activeTab === 'instructions' ? 'bg-white text-slate-900 shadow-sm font-bold' : 'text-slate-600 hover:text-slate-900'
@@ -367,6 +376,79 @@ function verifyCollegeAccess(int $targetCollegeId): bool {
 
         {/* Tab Body */}
         <div className="p-6 overflow-y-auto flex-1 text-slate-800 text-xs">
+          {activeTab === 'github' && (
+            <div className="space-y-6">
+              <div className="bg-rose-50 border border-rose-200 p-4 rounded-2xl">
+                <h4 className="font-bold text-rose-950 text-sm mb-1 flex items-center gap-2">
+                  <span>Why Did GitHub Show a Blank White Page?</span>
+                </h4>
+                <p className="text-rose-800 leading-relaxed text-xs">
+                  When you push code to GitHub and turn on GitHub Pages using <strong>"Deploy from a branch" (main / root)</strong>, GitHub Pages tries to serve raw <code className="font-mono bg-white px-1 py-0.5 rounded border border-rose-200">index.html</code> pointing to <code className="font-mono bg-white px-1 py-0.5 rounded border border-rose-200">src/main.tsx</code>. Browsers cannot run raw TypeScript/TSX without building, so nothing renders!
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <h5 className="font-bold text-slate-900 text-sm">Choose One of the 3 Solutions Below:</h5>
+
+                {/* Solution 1 */}
+                <div className="border border-emerald-300 bg-emerald-50/40 rounded-2xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-emerald-900 text-sm flex items-center gap-1.5">
+                      <Check className="w-4 h-4 text-emerald-600" />
+                      Option 1 (Easiest - 1 Command Deploy):
+                    </span>
+                    <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
+                      Recommended
+                    </span>
+                  </div>
+                  <p className="text-slate-600">
+                    We installed <code className="font-mono bg-white px-1 py-0.5 rounded border">gh-pages</code>. Simply run this in your terminal:
+                  </p>
+                  <pre className="bg-slate-900 text-emerald-300 p-3 rounded-xl font-mono text-xs overflow-x-auto">
+                    npm run deploy
+                  </pre>
+                  <p className="text-slate-600 text-[11px]">
+                    This automatically compiles the project and pushes it to a <code className="font-mono font-bold">gh-pages</code> branch. In your GitHub Repo &rarr; <strong>Settings &rarr; Pages</strong>, set branch to <strong>gh-pages</strong> and folder to <strong>/ (root)</strong>. Done!
+                  </p>
+                </div>
+
+                {/* Solution 2 */}
+                <div className="border border-sky-300 bg-sky-50/40 rounded-2xl p-4 space-y-2">
+                  <span className="font-bold text-sky-900 text-sm block">
+                    Option 2: Use GitHub Actions (Automated on every push)
+                  </span>
+                  <p className="text-slate-600">
+                    We generated <code className="font-mono">.github/workflows/deploy.yml</code> in your repository.
+                  </p>
+                  <ol className="list-decimal list-inside space-y-1 text-slate-600 text-xs">
+                    <li>Push your repository commits to GitHub (<code>git push origin main</code>).</li>
+                    <li>In GitHub, click <strong>Settings</strong> &rarr; <strong>Pages</strong>.</li>
+                    <li>Under <strong>Build and deployment &rarr; Source</strong>, choose <strong>GitHub Actions</strong>.</li>
+                  </ol>
+                  <p className="text-slate-500 text-[11px]">
+                    GitHub will automatically run the build on Ubuntu runner and publish your site with zero manual files!
+                  </p>
+                </div>
+
+                {/* Solution 3 */}
+                <div className="border border-purple-300 bg-purple-50/40 rounded-2xl p-4 space-y-2">
+                  <span className="font-bold text-purple-900 text-sm block">
+                    Option 3: Deploy from the <code>/docs</code> folder on <code>main</code>
+                  </span>
+                  <p className="text-slate-600">
+                    GitHub Pages allows deploying from the <code className="font-mono">/docs</code> folder:
+                  </p>
+                  <pre className="bg-slate-900 text-purple-300 p-3 rounded-xl font-mono text-xs overflow-x-auto">
+                    npm run build:docs
+                  </pre>
+                  <p className="text-slate-600 text-[11px]">
+                    Commit the generated <code className="font-mono font-bold">docs</code> folder and push to GitHub. Then in <strong>Settings &rarr; Pages</strong>, set branch: <strong>main</strong> and folder: <strong>/docs</strong>.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
           {activeTab === 'instructions' && (
             <div className="space-y-6">
               <div className="bg-sky-50 border border-sky-200 p-4 rounded-2xl">
