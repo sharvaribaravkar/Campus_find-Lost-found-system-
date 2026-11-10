@@ -28,32 +28,60 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [currentCollege, setCurrentCollege] = useState<College | null>(null);
   const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 
+  const safeGetStoredUserId = (): string | null => {
+    try {
+      return localStorage.getItem('campusfind_current_user_id');
+    } catch {
+      return null;
+    }
+  };
+
+  const safeSetStoredUserId = (id: string) => {
+    try {
+      localStorage.setItem('campusfind_current_user_id', id);
+    } catch {
+      // ignore
+    }
+  };
+
+  const safeRemoveStoredUserId = () => {
+    try {
+      localStorage.removeItem('campusfind_current_user_id');
+    } catch {
+      // ignore
+    }
+  };
+
   const refreshAuth = () => {
-    const users = storage.getUsers();
-    setAvailableUsers(users);
+    try {
+      const users = storage.getUsers();
+      setAvailableUsers(users);
 
-    const savedUserId = localStorage.getItem('campusfind_current_user_id');
-    let userToSet: User | null = null;
+      const savedUserId = safeGetStoredUserId();
+      let userToSet: User | null = null;
 
-    if (savedUserId) {
-      userToSet = users.find(u => u.id === savedUserId) || null;
-    }
-    
-    // Default to Rahul Sharma (Student at DY Patil) on first load for a rich initial experience
-    if (!userToSet && users.length > 0) {
-      userToSet = users.find(u => u.id === 'usr_student_rahul') || users[0];
-      if (userToSet) {
-        localStorage.setItem('campusfind_current_user_id', userToSet.id);
+      if (savedUserId) {
+        userToSet = users.find(u => u.id === savedUserId) || null;
       }
-    }
+      
+      // Default to Rahul Sharma (Student at DY Patil) on first load for a rich initial experience
+      if (!userToSet && users.length > 0) {
+        userToSet = users.find(u => u.id === 'usr_student_rahul') || users[0];
+        if (userToSet) {
+          safeSetStoredUserId(userToSet.id);
+        }
+      }
 
-    setCurrentUser(userToSet);
+      setCurrentUser(userToSet);
 
-    if (userToSet?.college_id) {
-      const college = storage.getCollegeById(userToSet.college_id) || null;
-      setCurrentCollege(college);
-    } else {
-      setCurrentCollege(null);
+      if (userToSet?.college_id) {
+        const college = storage.getCollegeById(userToSet.college_id) || null;
+        setCurrentCollege(college);
+      } else {
+        setCurrentCollege(null);
+      }
+    } catch (e) {
+      console.error('Error refreshing auth:', e);
     }
   };
 
@@ -65,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const users = storage.getUsers();
     const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
     if (user) {
-      localStorage.setItem('campusfind_current_user_id', user.id);
+      safeSetStoredUserId(user.id);
       setCurrentUser(user);
       if (user.college_id) {
         setCurrentCollege(storage.getCollegeById(user.college_id) || null);
@@ -99,19 +127,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.name)}`,
     });
 
-    localStorage.setItem('campusfind_current_user_id', newUser.id);
+    safeSetStoredUserId(newUser.id);
     refreshAuth();
     return newUser;
   };
 
   const logout = () => {
-    localStorage.removeItem('campusfind_current_user_id');
+    safeRemoveStoredUserId();
     setCurrentUser(null);
     setCurrentCollege(null);
   };
 
   const switchUser = (userId: string) => {
-    localStorage.setItem('campusfind_current_user_id', userId);
+    safeSetStoredUserId(userId);
     refreshAuth();
   };
 

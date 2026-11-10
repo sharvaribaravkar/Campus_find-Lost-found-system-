@@ -21,26 +21,48 @@ const STORAGE_KEYS = {
 };
 
 class StorageService {
+  private memStorage: Record<string, string> = {};
+
   private get<T>(key: string, fallback: T): T {
     try {
-      const data = localStorage.getItem(key);
-      return data ? JSON.parse(data) : fallback;
+      if (typeof window !== 'undefined' && window.localStorage) {
+        const data = window.localStorage.getItem(key);
+        return data ? JSON.parse(data) : fallback;
+      }
     } catch {
-      return fallback;
+      // Fallback to in-memory
+      if (this.memStorage[key]) {
+        try {
+          return JSON.parse(this.memStorage[key]);
+        } catch {
+          return fallback;
+        }
+      }
     }
+    return fallback;
   }
 
   private set<T>(key: string, value: T): void {
+    const serialized = JSON.stringify(value);
+    this.memStorage[key] = serialized;
     try {
-      localStorage.setItem(key, JSON.stringify(value));
+      if (typeof window !== 'undefined' && window.localStorage) {
+        window.localStorage.setItem(key, serialized);
+      }
     } catch (e) {
-      console.error('Storage write error', e);
+      console.warn('LocalStorage not available, using in-memory store', e);
     }
   }
 
   // Initialize data if not present
   public init() {
-    if (!localStorage.getItem(STORAGE_KEYS.COLLEGES)) {
+    try {
+      const existing = this.get<College[] | null>(STORAGE_KEYS.COLLEGES, null);
+      if (!existing || existing.length === 0) {
+        this.resetToDefaults();
+      }
+    } catch (e) {
+      console.warn('Failed to initialize storage, falling back to defaults', e);
       this.resetToDefaults();
     }
   }
