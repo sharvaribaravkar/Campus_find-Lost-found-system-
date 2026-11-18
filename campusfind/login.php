@@ -1,6 +1,6 @@
 <?php
 /**
- * CampusFind – Multi-Role Login Page
+ * CampusFind – Student Login Page
  */
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/includes/auth.php';
@@ -13,40 +13,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
 
     if (!empty($email) && !empty($password)) {
-        $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if ($user && password_verify($password, $user['password_hash'])) {
-            // Check college status if user is not super_admin
-            if ($user['college_id'] !== null) {
-                $cStmt = $pdo->prepare("SELECT status FROM colleges WHERE id = ?");
-                $cStmt->execute([$user['college_id']]);
-                $cStatus = $cStmt->fetchColumn();
-                if ($cStatus !== 'approved') {
-                    $error = 'Your college registration is currently pending Super Admin approval.';
-                }
-            }
-
-            if (empty($error)) {
-                $_SESSION['user_id'] = $user['id'];
-                $_SESSION['user_name'] = $user['name'];
-                $_SESSION['user_email'] = $user['email'];
-                $_SESSION['user_role'] = $user['role'];
-                $_SESSION['college_id'] = $user['college_id'];
-
-                // Role based redirect
-                if ($user['role'] === 'super_admin') {
-                    header('Location: /campusfind/super-admin/dashboard.php');
-                } elseif ($user['role'] === 'college_admin') {
-                    header('Location: /campusfind/college-admin/dashboard.php');
-                } else {
-                    header('Location: /campusfind/student/dashboard.php');
-                }
-                exit;
-            }
+        if (strtolower($email) === 'admin@campusfind.in') {
+            $error = 'Administrators must sign in via the separate Admin Portal.';
         } else {
-            $error = 'Invalid email or password.';
+            $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND role = 'student' AND status = 'active'");
+            $stmt->execute([$email]);
+            $user = $stmt->fetch();
+
+            if ($user && password_verify($password, $user['password_hash'])) {
+                if ($user['college_id'] !== null) {
+                    $cStmt = $pdo->prepare("SELECT status FROM colleges WHERE id = ?");
+                    $cStmt->execute([$user['college_id']]);
+                    $cStatus = $cStmt->fetchColumn();
+                    if ($cStatus !== 'approved') {
+                        $error = 'Your college registration is currently pending Administrator approval.';
+                    }
+                }
+
+                if (empty($error)) {
+                    $_SESSION['user_id'] = $user['id'];
+                    $_SESSION['user_name'] = $user['name'];
+                    $_SESSION['user_email'] = $user['email'];
+                    $_SESSION['user_role'] = $user['role'];
+                    $_SESSION['college_id'] = $user['college_id'];
+
+                    header('Location: /campusfind/student/dashboard.php');
+                    exit;
+                }
+            } else {
+                $error = 'Invalid college email or password.';
+            }
         }
     } else {
         $error = 'Please fill in both email and password.';
@@ -61,8 +57,8 @@ include __DIR__ . '/includes/header.php';
         <div class="col-md-5">
             <div class="card rounded-4 border shadow-sm p-4">
                 <div class="text-center mb-4">
-                    <h3 class="fw-bold">Sign In to CampusFind</h3>
-                    <p class="text-muted small">Access your campus lost & found management portal</p>
+                    <h3 class="fw-bold">Student Sign In</h3>
+                    <p class="text-muted small">Access your campus lost &amp; found portal</p>
                 </div>
 
                 <?php if ($error): ?>
@@ -72,13 +68,12 @@ include __DIR__ . '/includes/header.php';
                 <form method="POST">
                     <div class="mb-3">
                         <label class="form-label small fw-bold">College Email</label>
-                        <input type="email" name="email" class="form-control" placeholder="e.g. rahul.sharma@dypcoe.edu.in" required>
+                        <input type="email" name="email" class="form-control" placeholder="student@college.edu" required>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label small fw-bold">Password</label>
                         <input type="password" name="password" class="form-control" placeholder="••••••••" required>
-                        <small class="text-muted">Default seed password: <code>Password@123</code></small>
                     </div>
 
                     <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mt-2">Sign In</button>
@@ -87,6 +82,11 @@ include __DIR__ . '/includes/header.php';
                 <div class="mt-4 pt-3 border-top text-center">
                     <span class="small text-muted">Don't have an account? </span>
                     <a href="/campusfind/register.php" class="small fw-bold text-decoration-none">Register as Student</a>
+                    <div class="mt-2">
+                        <a href="/campusfind/admin-login.php" class="small text-warning-emphasis fw-semibold text-decoration-none">
+                            <i class="fa-solid fa-shield-halved me-1"></i>Administrator? Go to Admin Portal
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>

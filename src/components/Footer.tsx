@@ -62,6 +62,9 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, onOpenXamppExport
               <li>
                 <button onClick={() => setCurrentTab('college-register')} className="text-sky-400 hover:text-sky-300 transition">Register Your College</button>
               </li>
+              <li>
+                <button onClick={() => setCurrentTab('admin-portal')} className="text-amber-400 hover:text-amber-300 transition font-medium">Admin Portal</button>
+              </li>
             </ul>
           </div>
 

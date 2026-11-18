@@ -30,11 +30,9 @@ Across college campuses, dozens of valuables—scientific calculators, laptop ch
 - Backend authorization prevents students from accessing another college's private data.
 - Optional **Global Inter-College Search** allows students to search participating institutions without exposing sensitive personal information.
 
-### 👥 Three User Account Roles
-1. **Super Admin:** Master platform console to review and approve/reject college registrations (e.g. MKSSS Cummins College), activate or deactivate institutions, review platform complaints, and view recovery analytics.
-2. **College Admin:** College-specific dashboard to manage students, moderate lost & found reports, evaluate ownership claims, inspect proof receipts, and mark items as officially returned upon in-person handover.
-3. **Student:** Personalized student portal with recovery metrics, My Lost Items, My Found Reports, Claim Tracking, In-app Notifications, and Profile management.
-4. **1-Click Quick Role Switcher:** Switch between test accounts (Super Admin, DY Patil Admin, PCCOE Admin, Rahul Student) in 1 click for testing.
+### 👥 Access Architecture
+1. **Separate Admin Portal:** Dedicated, single-credential administrator console to approve/reject college registrations, activate or deactivate institutions, verify ownership claims, moderate items, manage categories, and resolve complaints.
+2. **Student Portal:** Students register with their college email, roll number, and password to report lost/found items, receive smart-match notifications, submit ownership claims, and track recovery status.
 
 ### ⚡ Rule-Based Smart Matching Engine
 - Automatically compares lost and found reports within the same campus.
@@ -149,18 +147,10 @@ git push origin main
 
 ---
 
-## 🔑 Pre-Seeded Test Accounts
+## 🔐 Authentication & Portals
 
-All accounts use the password: `Password@123`
-
-| Role | Name | Email | Associated Campus |
-|---|---|---|---|
-| **Super Admin** | Vikramaditya Roy | `superadmin@campusfind.in` | Global Platform Oversight |
-| **College Admin** | Dr. Suresh Kulkarni | `admin.dyp@campusfind.in` | D.Y. Patil College of Engineering |
-| **College Admin** | Prof. Anjali Deshmukh | `admin.pccoe@campusfind.in` | PCCOE, Pune |
-| **Student** | Rahul Sharma | `rahul.sharma@dypcoe.edu.in` | D.Y. Patil (TE-COMP-42) |
-| **Student** | Priya Patel | `priya.patel@dypcoe.edu.in` | D.Y. Patil (BE-IT-18) |
-| **Student** | Amit Patil | `amit.patil@pccoepune.org` | PCCOE (SE-MECH-09) |
+- **Student Registration & Login:** Students create their own accounts via **Register** with their college selection and password, then sign in via **Student Log In**.
+- **Separate Admin Portal:** Accessed via the **Admin Portal** button in the navigation bar (or `/campusfind/admin-login.php` in the PHP version), protected by a single dedicated Admin ID and Password.
 
 ---
 
@@ -174,7 +164,8 @@ All accounts use the password: `Password@123`
 │   ├── includes/functions.php     # Smart matching algorithm & XSS escaping
 │   ├── database/campusfind_db.sql # Full 10-table MySQL DDL + sample seeds
 │   ├── index.php                  # PHP landing page
-│   ├── login.php                  # Multi-role authentication
+│   ├── login.php                  # Student authentication
+│   ├── admin-login.php            # Separate single-ID Admin Portal login
 │   ├── register.php               # Student registration with college select
 │   └── college-register.php       # Institution registration (status: pending)
 ├── docs/                          # Pre-built static site for GitHub Pages

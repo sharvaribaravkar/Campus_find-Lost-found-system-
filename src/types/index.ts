@@ -23,9 +23,10 @@ export interface College {
 
 export interface User {
   id: string;
-  college_id: string | null; // null for super_admin
+  college_id: string | null; // null for admin
   name: string;
   email: string;
+  password?: string;
   roll_number?: string;
   department?: string;
   academic_year?: string;

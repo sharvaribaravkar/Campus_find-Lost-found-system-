@@ -2,10 +2,33 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User, College } from '../types';
 import { storage } from '../services/storage';
 
+const ADMIN_ID = 'admin@campusfind.in';
+const ADMIN_PASS = 'CampusFind@2026';
+const ADMIN_USER_ID = 'admin_master';
+const AUTH_STORAGE_KEY = 'campusfind_current_user_id_v2';
+
+const buildAdminUser = (): User => ({
+  id: ADMIN_USER_ID,
+  college_id: null,
+  name: 'CampusFind Administrator',
+  email: ADMIN_ID,
+  role: 'super_admin',
+  status: 'active',
+  created_at: new Date().toISOString(),
+  updated_at: new Date().toISOString(),
+});
+
+interface AuthResult {
+  success: boolean;
+  error?: string;
+}
+
 interface AuthContextType {
   currentUser: User | null;
   currentCollege: College | null;
-  login: (email: string, role?: string) => boolean;
+  isAdmin: boolean;
+  login: (email: string, password: string) => AuthResult;
+  loginAdmin: (adminId: string, password: string) => AuthResult;
   registerStudent: (data: {
     name: string;
     email: string;
@@ -14,10 +37,9 @@ interface AuthContextType {
     department: string;
     academic_year: string;
     phone?: string;
+    password: string;
   }) => User;
   logout: () => void;
-  switchUser: (userId: string) => void;
-  availableUsers: User[];
   refreshAuth: () => void;
 }
 
@@ -26,11 +48,12 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [currentCollege, setCurrentCollege] = useState<College | null>(null);
-  const [availableUsers, setAvailableUsers] = useState<User[]>([]);
 
   const safeGetStoredUserId = (): string | null => {
     try {
-      return localStorage.getItem('campusfind_current_user_id');
+      // Remove legacy demo auto-login key if present
+      localStorage.removeItem('campusfind_current_user_id');
+      return localStorage.getItem(AUTH_STORAGE_KEY);
     } catch {
       return null;
     }
@@ -38,7 +61,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const safeSetStoredUserId = (id: string) => {
     try {
-      localStorage.setItem('campusfind_current_user_id', id);
+      localStorage.setItem(AUTH_STORAGE_KEY, id);
     } catch {
       // ignore
     }
@@ -46,7 +69,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const safeRemoveStoredUserId = () => {
     try {
-      localStorage.removeItem('campusfind_current_user_id');
+      localStorage.removeItem(AUTH_STORAGE_KEY);
     } catch {
       // ignore
     }
@@ -54,24 +77,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const refreshAuth = () => {
     try {
-      const users = storage.getUsers();
-      setAvailableUsers(users);
-
       const savedUserId = safeGetStoredUserId();
-      let userToSet: User | null = null;
-
-      if (savedUserId) {
-        userToSet = users.find(u => u.id === savedUserId) || null;
-      }
-      
-      // Default to Rahul Sharma (Student at DY Patil) on first load for a rich initial experience
-      if (!userToSet && users.length > 0) {
-        userToSet = users.find(u => u.id === 'usr_student_rahul') || users[0];
-        if (userToSet) {
-          safeSetStoredUserId(userToSet.id);
-        }
+      if (!savedUserId) {
+        setCurrentUser(null);
+        setCurrentCollege(null);
+        return;
       }
 
+      if (savedUserId === ADMIN_USER_ID) {
+        setCurrentUser(buildAdminUser());
+        setCurrentCollege(null);
+        return;
+      }
+
+      const users = storage.getUsers();
+      const userToSet = users.find(u => u.id === savedUserId && u.role === 'student') || null;
       setCurrentUser(userToSet);
 
       if (userToSet?.college_id) {
@@ -89,20 +109,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     refreshAuth();
   }, []);
 
-  const login = (email: string): boolean => {
-    const users = storage.getUsers();
-    const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
-    if (user) {
-      safeSetStoredUserId(user.id);
-      setCurrentUser(user);
-      if (user.college_id) {
-        setCurrentCollege(storage.getCollegeById(user.college_id) || null);
-      } else {
-        setCurrentCollege(null);
-      }
-      return true;
+  const login = (email: string, password: string): AuthResult => {
+    const cleanEmail = email.trim().toLowerCase();
+    if (cleanEmail === ADMIN_ID) {
+      return {
+        success: false,
+        error: 'Administrators must sign in through the separate Admin Portal.',
+      };
     }
-    return false;
+
+    const users = storage.getUsers();
+    const user = users.find(
+      u => u.email.toLowerCase() === cleanEmail && u.role === 'student'
+    );
+
+    if (!user) {
+      return {
+        success: false,
+        error: 'No registered student account found with this email. Please register first.',
+      };
+    }
+
+    if (user.password !== password) {
+      return {
+        success: false,
+        error: 'Incorrect password. Please try again.',
+      };
+    }
+
+    safeSetStoredUserId(user.id);
+    setCurrentUser(user);
+    if (user.college_id) {
+      setCurrentCollege(storage.getCollegeById(user.college_id) || null);
+    } else {
+      setCurrentCollege(null);
+    }
+    return { success: true };
+  };
+
+  const loginAdmin = (adminId: string, password: string): AuthResult => {
+    const cleanId = adminId.trim().toLowerCase();
+    if (cleanId !== ADMIN_ID || password !== ADMIN_PASS) {
+      return {
+        success: false,
+        error: 'Invalid Admin ID or Password. Access denied.',
+      };
+    }
+
+    const adminUser = buildAdminUser();
+    safeSetStoredUserId(ADMIN_USER_ID);
+    setCurrentUser(adminUser);
+    setCurrentCollege(null);
+    return { success: true };
   };
 
   const registerStudent = (data: {
@@ -113,18 +171,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     department: string;
     academic_year: string;
     phone?: string;
+    password: string;
   }): User => {
+    const cleanEmail = data.email.trim().toLowerCase();
+    if (cleanEmail === ADMIN_ID) {
+      throw new Error('This email address is reserved.');
+    }
+
+    const existing = storage.getUsers().find(u => u.email.toLowerCase() === cleanEmail);
+    if (existing) {
+      throw new Error('An account with this email already exists. Please log in instead.');
+    }
+
     const newUser = storage.addUser({
-      name: data.name,
-      email: data.email,
+      name: data.name.trim(),
+      email: cleanEmail,
       college_id: data.college_id,
-      roll_number: data.roll_number,
+      roll_number: data.roll_number.trim(),
       department: data.department,
       academic_year: data.academic_year,
       phone: data.phone,
+      password: data.password,
       role: 'student',
       status: 'active',
-      avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.name)}`,
+      avatar_url: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(data.name.trim())}`,
     });
 
     safeSetStoredUserId(newUser.id);
@@ -138,21 +208,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setCurrentCollege(null);
   };
 
-  const switchUser = (userId: string) => {
-    safeSetStoredUserId(userId);
-    refreshAuth();
-  };
+  const isAdmin = currentUser?.id === ADMIN_USER_ID;
 
   return (
     <AuthContext.Provider
       value={{
         currentUser,
         currentCollege,
+        isAdmin,
         login,
+        loginAdmin,
         registerStudent,
         logout,
-        switchUser,
-        availableUsers,
         refreshAuth,
       }}
     >

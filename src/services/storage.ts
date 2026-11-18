@@ -11,13 +11,13 @@ import {
 
 const STORAGE_KEYS = {
   COLLEGES: 'campusfind_colleges_v1',
-  USERS: 'campusfind_users_v1',
+  USERS: 'campusfind_users_v2',
   CATEGORIES: 'campusfind_categories_v1',
   ITEMS: 'campusfind_items_v1',
   CLAIMS: 'campusfind_claims_v1',
   NOTIFICATIONS: 'campusfind_notifications_v1',
   COMPLAINTS: 'campusfind_complaints_v1',
-  CURRENT_USER: 'campusfind_current_user_v1',
+  CURRENT_USER: 'campusfind_current_user_v2',
 };
 
 class StorageService {
@@ -101,9 +101,9 @@ class StorageService {
     colleges.unshift(newCollege);
     this.set(STORAGE_KEYS.COLLEGES, colleges);
 
-    // Notify Super Admin
+    // Notify Admin Portal
     this.addNotification({
-      user_id: 'usr_superadmin',
+      user_id: 'admin_master',
       college_id: newCollege.id,
       title: 'New College Registration',
       message: `${newCollege.name} registered and awaits your approval.`,
@@ -126,22 +126,6 @@ class StorageService {
       updated_at: new Date().toISOString(),
     };
     this.set(STORAGE_KEYS.COLLEGES, colleges);
-
-    // If approved, create or activate the college admin account if admin info exists
-    if (status === 'approved' && colleges[index].admin_email) {
-      const users = this.getUsers();
-      const existing = users.find(u => u.email === colleges[index].admin_email);
-      if (!existing) {
-        this.addUser({
-          college_id: id,
-          name: colleges[index].admin_name || `${colleges[index].code} Admin`,
-          email: colleges[index].admin_email!,
-          role: 'college_admin',
-          status: 'active',
-          avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
-        });
-      }
-    }
 
     return colleges[index];
   }
@@ -461,20 +445,17 @@ class StorageService {
     // Mark item status as claimed/under verification
     this.updateItem(data.item_id, { status: 'claimed' });
 
-    // Notify College Admin
+    // Notify Admin Portal
     const item = this.getItemById(data.item_id);
     const claimant = this.getUserById(data.claimant_user_id);
-    const admins = this.getUsers().filter(u => u.college_id === data.college_id && u.role === 'college_admin');
-    
-    admins.forEach(admin => {
-      this.addNotification({
-        user_id: admin.id,
-        college_id: data.college_id,
-        title: 'New Ownership Claim Submitted',
-        message: `${claimant?.name || 'A student'} submitted a claim for "${item?.title || 'item'}". Review required.`,
-        link: '#claims',
-        type: 'claim_submitted',
-      });
+
+    this.addNotification({
+      user_id: 'admin_master',
+      college_id: data.college_id,
+      title: 'New Ownership Claim Submitted',
+      message: `${claimant?.name || 'A student'} submitted a claim for "${item?.title || 'item'}". Review required.`,
+      link: '#claims',
+      type: 'claim_submitted',
     });
 
     return newClaim;

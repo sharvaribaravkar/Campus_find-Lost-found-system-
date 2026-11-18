@@ -216,8 +216,7 @@ CREATE TABLE `complaints` (
 
 -- ========================================================
 -- SEED DATA
--- Default password for all sample accounts is: Password@123
--- Hash generated via password_hash('Password@123', PASSWORD_BCRYPT)
+-- Single Admin Portal Account + Sample Catalog Data
 -- ========================================================
 
 -- Categories
@@ -235,49 +234,37 @@ INSERT INTO `categories` (`id`, `name`, `icon`, `description`) VALUES
 
 -- Colleges
 INSERT INTO `colleges` (`id`, `college_code`, `name`, `email`, `phone`, `address`, `city`, `state`, `website`, `logo_url`, `admin_name`, `admin_email`, `status`) VALUES
-(1, 'DYPCOE', 'D.Y. Patil College of Engineering, Akurdi', 'lostfound@dypcoeakurdi.ac.in', '+91 20 2765 3058', 'Sector 29, Nigdi Pradhikaran, Akurdi', 'Pune', 'Maharashtra', 'https://www.dypcoeakurdi.ac.in', 'https://images.unsplash.com/photo-1562774053-701939374585?w=150', 'Dr. Suresh Kulkarni', 'admin.dyp@campusfind.in', 'approved'),
-(2, 'PCCOE', 'Pimpri Chinchwad College of Engineering (PCCOE)', 'lostfound@pccoepune.org', '+91 20 2765 3168', 'Near Akurdi Railway Station Road, Sector 26, Pradhikaran', 'Pune', 'Maharashtra', 'https://www.pccoepune.com', 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=150', 'Prof. Anjali Deshmukh', 'admin.pccoe@campusfind.in', 'approved'),
-(3, 'MITWPU', 'MIT World Peace University (MIT-WPU)', 'campussecurity@mitwpu.edu.in', '+91 20 7117 7104', 'S.No.124, Paud Rd, Kothrud', 'Pune', 'Maharashtra', 'https://mitwpu.edu.in', 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=150', 'Col. Rajesh Verma', 'admin.mit@campusfind.in', 'approved'),
-(4, 'COEP', 'COEP Technological University', 'admin@coeptech.ac.in', '+91 20 2550 7000', 'Wellesley Rd, Shivajinagar', 'Pune', 'Maharashtra', 'https://www.coeptech.ac.in', 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150', 'Dr. Anand Joshi', 'admin.coep@campusfind.in', 'approved'),
-(5, 'CCOEW', 'MKSSS Cummins College of Engineering for Women', 'contact@cumminscollege.in', '+91 20 2531 1000', 'Karve Nagar', 'Pune', 'Maharashtra', 'https://www.cumminscollege.org', 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=150', 'Prof. Sunita Shinde', 'admin.cummins@campusfind.in', 'pending');
+(1, 'DYPCOE', 'D.Y. Patil College of Engineering, Akurdi', 'lostfound@dypcoeakurdi.ac.in', '+91 20 2765 3058', 'Sector 29, Nigdi Pradhikaran, Akurdi', 'Pune', 'Maharashtra', 'https://www.dypcoeakurdi.ac.in', 'https://images.unsplash.com/photo-1562774053-701939374585?w=150', 'Campus Coordinator', 'lostfound@dypcoeakurdi.ac.in', 'approved'),
+(2, 'PCCOE', 'Pimpri Chinchwad College of Engineering (PCCOE)', 'lostfound@pccoepune.org', '+91 20 2765 3168', 'Near Akurdi Railway Station Road, Sector 26, Pradhikaran', 'Pune', 'Maharashtra', 'https://www.pccoepune.com', 'https://images.unsplash.com/photo-1541339907198-e08756dedf3f?w=150', 'Campus Coordinator', 'lostfound@pccoepune.org', 'approved'),
+(3, 'MITWPU', 'MIT World Peace University (MIT-WPU)', 'campussecurity@mitwpu.edu.in', '+91 20 7117 7104', 'S.No.124, Paud Rd, Kothrud', 'Pune', 'Maharashtra', 'https://mitwpu.edu.in', 'https://images.unsplash.com/photo-1592280771190-3e2e4d571952?w=150', 'Campus Security Office', 'campussecurity@mitwpu.edu.in', 'approved'),
+(4, 'COEP', 'COEP Technological University', 'admin@coeptech.ac.in', '+91 20 2550 7000', 'Wellesley Rd, Shivajinagar', 'Pune', 'Maharashtra', 'https://www.coeptech.ac.in', 'https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=150', 'Campus Helpdesk', 'admin@coeptech.ac.in', 'approved'),
+(5, 'CCOEW', 'MKSSS Cummins College of Engineering for Women', 'contact@cumminscollege.in', '+91 20 2531 1000', 'Karve Nagar', 'Pune', 'Maharashtra', 'https://www.cumminscollege.org', 'https://images.unsplash.com/photo-1580582932707-520aed937b7b?w=150', 'Prof. Sunita Shinde', 'contact@cumminscollege.in', 'pending');
 
--- Users
--- Password hash for 'Password@123': $2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u
+-- Single Admin Portal Account (No demo student accounts seeded; students register via register.php)
 INSERT INTO `users` (`id`, `college_id`, `name`, `email`, `password_hash`, `roll_number`, `department`, `academic_year`, `phone`, `role`, `status`) VALUES
-(1, NULL, 'Vikramaditya Roy (Super Admin)', 'superadmin@campusfind.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', NULL, NULL, NULL, '+91 98220 11223', 'super_admin', 'active'),
-(2, 1, 'Dr. Suresh Kulkarni', 'admin.dyp@campusfind.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', NULL, 'Computer Engineering', NULL, '+91 94220 55441', 'college_admin', 'active'),
-(3, 2, 'Prof. Anjali Deshmukh', 'admin.pccoe@campusfind.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', NULL, 'Dean Student Affairs', NULL, '+91 98810 66772', 'college_admin', 'active'),
-(4, 1, 'Rahul Sharma', 'rahul.sharma@dypcoe.edu.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', 'TE-COMP-42', 'Computer Engineering', 'Third Year (TE)', '+91 98234 56789', 'student', 'active'),
-(5, 1, 'Priya Patel', 'priya.patel@dypcoe.edu.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', 'BE-IT-18', 'Information Technology', 'Final Year (BE)', '+91 97654 32109', 'student', 'active'),
-(6, 2, 'Amit Patil', 'amit.patil@pccoepune.org', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', 'SE-MECH-09', 'Mechanical Engineering', 'Second Year (SE)', '+91 98901 23456', 'student', 'active');
+(1, NULL, 'CampusFind Administrator', 'admin@campusfind.in', '$2y$10$fWnK16p1c5oG4178xK43k.gN1K2WkQG.V7b3/O9g0qKkXqW4y.O2u', NULL, NULL, NULL, NULL, 'super_admin', 'active');
 
--- Items
+-- Sample Items
 INSERT INTO `items` (`id`, `college_id`, `user_id`, `category_id`, `title`, `type`, `description`, `image_url`, `date_occurred`, `time_occurred`, `location_name`, `contact_preference`, `status`) VALUES
-(1, 1, 4, 1, 'Boat Airdopes 141 (Black Case with Batman sticker)', 'lost', 'Black charging case containing wireless earbuds with yellow/black Batman sticker. Lost around reading hall.', 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600', '2026-10-29', '14:30:00', 'Central Library, 2nd Floor Reading Room', 'In-app Chat & Verified Admin Handover', 'active'),
-(2, 1, 5, 1, 'Black TWS Earbuds in matte case with sticker', 'found', 'Found a black wireless earbud case on Table #14 in the library. Has a superhero emblem sticker.', 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=600', '2026-10-29', '16:00:00', 'Central Library, 2nd Floor Reading Room', 'Collect from Security / Admin', 'active'),
-(3, 1, 4, 10, 'Casio Scientific Calculator FX-991CW', 'lost', 'Casio ClassWiz scientific calculator in black slip cover. Has initials RS in silver marker.', 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=600', '2026-10-28', '11:15:00', 'Computer Dept Lab 402, 4th Floor', 'Call or WhatsApp', 'active'),
-(4, 1, 2, 4, 'Brown Leather Fossil Bi-Fold Wallet', 'found', 'Brown leather wallet with cash and cards found near the Campus Canteen lawn.', 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600', '2026-10-30', '13:00:00', 'Main Canteen Green Lawn', 'Dean Student Affairs Office', 'active'),
-(5, 2, 6, 5, 'Wildcraft Grey Laptop Backpack with Blue Accents', 'lost', 'Grey and navy 32L backpack. Contains Data Structures spiral notebook and engineering drawing instruments.', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600', '2026-10-30', '17:15:00', 'Mechanical Workshop Building Porch', 'Phone Call', 'active');
+(1, 1, 1, 1, 'Boat Airdopes 141 (Black Case with Batman sticker)', 'lost', 'Black charging case containing wireless earbuds with yellow/black Batman sticker. Lost around reading hall.', 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=600', '2026-10-29', '14:30:00', 'Central Library, 2nd Floor Reading Room', 'In-app Chat & Verified Admin Handover', 'active'),
+(2, 1, 1, 1, 'Black TWS Earbuds in matte case with sticker', 'found', 'Found a black wireless earbud case on Table #14 in the library. Has a superhero emblem sticker.', 'https://images.unsplash.com/photo-1606220588913-b3aacb4d2f46?w=600', '2026-10-29', '16:00:00', 'Central Library, 2nd Floor Reading Room', 'Collect from Security / Admin', 'active'),
+(3, 1, 1, 10, 'Casio Scientific Calculator FX-991CW', 'lost', 'Casio ClassWiz scientific calculator in black slip cover. Has initials RS in silver marker.', 'https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=600', '2026-10-28', '11:15:00', 'Computer Dept Lab 402, 4th Floor', 'Verified Admin Handover', 'active'),
+(4, 1, 1, 4, 'Brown Leather Fossil Bi-Fold Wallet', 'found', 'Brown leather wallet with cash and cards found near the Campus Canteen lawn.', 'https://images.unsplash.com/photo-1627123424574-724758594e93?w=600', '2026-10-30', '13:00:00', 'Main Canteen Green Lawn', 'Dean Student Affairs Office', 'active'),
+(5, 2, 1, 5, 'Wildcraft Grey Laptop Backpack with Blue Accents', 'lost', 'Grey and navy 32L backpack. Contains Data Structures spiral notebook and engineering drawing instruments.', 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=600', '2026-10-30', '17:15:00', 'Mechanical Workshop Building Porch', 'Verified Admin Handover', 'active');
 
 -- Lost specifics
 INSERT INTO `lost_items` (`id`, `item_id`, `reward_notes`, `additional_details`) VALUES
-(1, 1, 'Chocolates & Gratitude', 'Serial number ends in 8943. Left earbud has slight scratch.'),
+(1, 1, NULL, 'Serial number ends in 8943. Left earbud has slight scratch.'),
 (2, 3, NULL, 'Urgent: needed for practical exam.'),
-(3, 5, 'Reward Rs 500', 'Drafter has Amit P. written with marker.');
+(3, 5, NULL, 'Contains engineering drawing instruments.');
 
 -- Found specifics
 INSERT INTO `found_items` (`id`, `item_id`, `deposit_location`, `is_sensitive_id_card`) VALUES
 (1, 2, 'Central Library Reception Desk with Librarian Mr. Shinde', 0),
 (2, 4, 'Main Security Office (Gate #1) with Head Guard Mr. Yadav', 0);
 
--- Claims
-INSERT INTO `claims` (`id`, `item_id`, `claimant_user_id`, `college_id`, `claim_reason`, `proof_text`, `status`, `admin_remarks`) VALUES
-(1, 2, 4, 1, 'This is my Boat Airdopes 141 lost on Oct 29. The case has my Batman sticker and serial ends in 8943.', 'Amazon Order # 402-9843211-192837. Box serial number matches 8943.', 'pending', 'Under review by Dr. Kulkarni.');
-
 -- Notifications
 INSERT INTO `notifications` (`id`, `user_id`, `college_id`, `title`, `message`, `type`, `is_read`) VALUES
-(1, 4, 1, '⚡ Smart Match Detected!', 'A found item "Black TWS Earbuds with sticker" matches your lost report "Boat Airdopes 141".', 'match', 0),
-(2, 2, 1, 'New Ownership Claim Submitted', 'Rahul Sharma (TE-COMP-42) submitted a claim for "Black TWS Earbuds in matte case".', 'claim_submitted', 0),
-(3, 1, 5, 'New College Registration Pending', 'MKSSS Cummins College of Engineering for Women submitted registration request.', 'college_approval', 0);
+(1, 1, 5, 'New College Registration Pending', 'MKSSS Cummins College of Engineering for Women submitted registration request.', 'college_approval', 0);
 
 COMMIT;

@@ -15,8 +15,7 @@ import { AboutPage } from './pages/AboutPage';
 import { ContactPage } from './pages/ContactPage';
 import { CollegeRegisterPage } from './pages/CollegeRegisterPage';
 import { StudentDashboard } from './pages/StudentDashboard';
-import { CollegeAdminDashboard } from './pages/CollegeAdminDashboard';
-import { SuperAdminDashboard } from './pages/SuperAdminDashboard';
+import { AdminPortalPage } from './pages/AdminPortalPage';
 import { ReportItemModal } from './components/ReportItemModal';
 import { ItemDetailsModal } from './components/ItemDetailsModal';
 import { SmartMatchModal } from './components/SmartMatchModal';
@@ -26,7 +25,7 @@ import { Item } from './types';
 import { storage } from './services/storage';
 
 function MainAppContent() {
-  const { currentUser, currentCollege } = useAuth();
+  const { currentUser } = useAuth();
   const [currentTab, setCurrentTab] = useState<string>('home');
 
   // Modal States
@@ -35,7 +34,7 @@ function MainAppContent() {
   const [xamppModalOpen, setXamppModalOpen] = useState(false);
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState<'login' | 'register'>('login');
-  
+
   // Item details modal
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
 
@@ -122,14 +121,10 @@ function MainAppContent() {
           />
         )}
 
-        {currentTab === 'contact' && (
-          <ContactPage />
-        )}
+        {currentTab === 'contact' && <ContactPage />}
 
         {currentTab === 'college-register' && (
-          <CollegeRegisterPage
-            onSuccess={() => setCurrentTab('home')}
-          />
+          <CollegeRegisterPage onSuccess={() => setCurrentTab('home')} />
         )}
 
         {currentTab === 'student-dashboard' && (
@@ -140,14 +135,11 @@ function MainAppContent() {
           />
         )}
 
-        {currentTab === 'college-admin' && (
-          <CollegeAdminDashboard
+        {currentTab === 'admin-portal' && (
+          <AdminPortalPage
             onViewItemDetails={handleViewItemDetails}
+            onExitPortal={() => setCurrentTab('home')}
           />
-        )}
-
-        {currentTab === 'super-admin' && (
-          <SuperAdminDashboard />
         )}
       </main>
 
@@ -195,11 +187,8 @@ function MainAppContent() {
         isOpen={authModalOpen}
         initialMode={authModalMode}
         onClose={() => setAuthModalOpen(false)}
-        onSuccess={() => {
-          if (currentUser?.role === 'super_admin') setCurrentTab('super-admin');
-          else if (currentUser?.role === 'college_admin') setCurrentTab('college-admin');
-          else setCurrentTab('student-dashboard');
-        }}
+        onSuccess={() => setCurrentTab('student-dashboard')}
+        onOpenAdminPortal={() => setCurrentTab('admin-portal')}
       />
     </div>
   );

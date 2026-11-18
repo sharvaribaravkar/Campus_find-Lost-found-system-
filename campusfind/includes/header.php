@@ -41,17 +41,18 @@ $user = getCurrentUser();
                 <li class="nav-item"><a class="nav-link" href="/campusfind/college-register.php">Register College</a></li>
             </ul>
             <div class="d-flex align-items-center gap-2">
+                <a href="/campusfind/admin-login.php" class="btn btn-warning btn-sm fw-bold">
+                    <i class="fa-solid fa-shield-halved me-1"></i>Admin Portal
+                </a>
                 <?php if ($user): ?>
                     <?php if ($user['role'] === 'super_admin'): ?>
-                        <a href="/campusfind/super-admin/dashboard.php" class="btn btn-warning btn-sm fw-bold">Super Admin Panel</a>
-                    <?php elseif ($user['role'] === 'college_admin'): ?>
-                        <a href="/campusfind/college-admin/dashboard.php" class="btn btn-info btn-sm fw-bold">College Admin Desk</a>
+                        <a href="/campusfind/super-admin/dashboard.php" class="btn btn-outline-warning btn-sm fw-bold">Admin Console</a>
                     <?php else: ?>
                         <a href="/campusfind/student/dashboard.php" class="btn btn-outline-light btn-sm">My Dashboard</a>
                     <?php endif; ?>
                     <a href="/campusfind/logout.php" class="btn btn-danger btn-sm">Logout</a>
                 <?php else: ?>
-                    <a href="/campusfind/login.php" class="btn btn-outline-light btn-sm">Login</a>
+                    <a href="/campusfind/login.php" class="btn btn-outline-light btn-sm">Student Login</a>
                     <a href="/campusfind/register.php" class="btn btn-info btn-sm text-white fw-bold">Register Student</a>
                 <?php endif; ?>
             </div>

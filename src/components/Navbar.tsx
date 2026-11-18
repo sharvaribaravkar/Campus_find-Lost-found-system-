@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
-import { 
-  MapPin, 
-  Search, 
-  Bell, 
-  User, 
-  LogOut, 
-  PlusCircle, 
-  ShieldCheck, 
-  GraduationCap, 
-  Building2, 
-  Menu, 
+import {
+  MapPin,
+  Search,
+  Bell,
+  LogOut,
+  PlusCircle,
+  ShieldCheck,
+  Building2,
+  Menu,
   X,
   FileCode,
-  CheckCircle2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { storage } from '../services/storage';
@@ -32,13 +29,12 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenXamppExport,
   onOpenAuthModal,
 }) => {
-  const { currentUser, currentCollege, logout, switchUser, availableUsers } = useAuth();
+  const { currentUser, currentCollege, isAdmin, logout } = useAuth();
   const [showNotifications, setShowNotifications] = useState(false);
-  const [showRoleSwitcher, setShowRoleSwitcher] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const notifications = currentUser ? storage.getNotifications(currentUser.id) : [];
-  const unreadCount = notifications.filter(n => !n.is_read).length;
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const handleMarkAsRead = (id: string) => {
     storage.markNotificationAsRead(id);
@@ -52,7 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-40 bg-slate-900 border-b border-slate-800 text-white shadow-lg">
-      {/* Top micro-bar for Multi-College indicator & quick demo role-switcher */}
+      {/* Top micro-bar for Multi-College indicator & Admin Portal / PHP Code links */}
       <div className="bg-slate-950/80 px-4 py-1.5 text-xs border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-2">
         <div className="flex items-center gap-2 text-slate-300">
           <span className="flex items-center gap-1 text-sky-400 font-semibold tracking-wide uppercase text-[11px]">
@@ -66,60 +62,20 @@ export const Navbar: React.FC<NavbarProps> = ({
           )}
         </div>
 
-        {/* 1-Click Quick Role Switcher for instant evaluator testing */}
         <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              onClick={() => setShowRoleSwitcher(!showRoleSwitcher)}
-              className="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-2.5 py-1 rounded-md text-xs font-medium border border-slate-700 transition"
-              title="Switch demo account to test Super Admin, College Admin, or Student views"
-            >
-              <User className="w-3.5 h-3.5 text-sky-400" />
-              <span>Role: <strong className="text-white capitalize">{currentUser ? currentUser.role.replace('_', ' ') : 'Guest'}</strong></span>
-              <span className="text-[10px] bg-sky-500/20 text-sky-300 px-1 rounded ml-1 font-mono">Switch</span>
-            </button>
-
-            {showRoleSwitcher && (
-              <div className="absolute right-0 mt-2 w-72 bg-slate-900 rounded-xl shadow-2xl border border-slate-700 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
-                <div className="text-[11px] font-semibold text-slate-400 px-2 py-1 uppercase tracking-wider">
-                  Test Switch User Roles:
-                </div>
-                <div className="space-y-1">
-                  {availableUsers.map(user => {
-                    const isSelected = currentUser?.id === user.id;
-                    const college = user.college_id ? storage.getCollegeById(user.college_id) : null;
-                    return (
-                      <button
-                        key={user.id}
-                        onClick={() => {
-                          switchUser(user.id);
-                          setShowRoleSwitcher(false);
-                          if (user.role === 'super_admin') setCurrentTab('super-admin');
-                          else if (user.role === 'college_admin') setCurrentTab('college-admin');
-                          else setCurrentTab('student-dashboard');
-                        }}
-                        className={`w-full text-left px-2.5 py-2 rounded-lg text-xs flex items-center gap-2 transition ${
-                          isSelected ? 'bg-sky-600 text-white font-medium' : 'text-slate-300 hover:bg-slate-800'
-                        }`}
-                      >
-                        <span className={`w-2 h-2 rounded-full ${
-                          user.role === 'super_admin' ? 'bg-amber-400' :
-                          user.role === 'college_admin' ? 'bg-emerald-400' : 'bg-sky-400'
-                        }`} />
-                        <div className="flex-1 truncate">
-                          <div className="font-semibold truncate">{user.name}</div>
-                          <div className="text-[10px] opacity-75 truncate">
-                            {user.role === 'super_admin' ? 'Super Admin (All Colleges)' : `${college?.code || 'Admin'} • ${user.role}`}
-                          </div>
-                        </div>
-                        {isSelected && <CheckCircle2 className="w-3.5 h-3.5 ml-auto text-white" />}
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
+          {/* Separate Admin Portal Button */}
+          <button
+            onClick={() => setCurrentTab('admin-portal')}
+            className={`flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold border transition ${
+              currentTab === 'admin-portal' || isAdmin
+                ? 'bg-amber-500 text-slate-950 border-amber-400'
+                : 'bg-slate-800 hover:bg-slate-700 text-amber-300 border-slate-700'
+            }`}
+            title="Access the separate Administrator Portal"
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>Admin Portal</span>
+          </button>
 
           {/* PHP & XAMPP Source Code export button */}
           <button
@@ -137,7 +93,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           {/* Logo with combination of location pin and search icon */}
-          <div 
+          <div
             onClick={() => setCurrentTab('home')}
             className="flex items-center gap-3 cursor-pointer group select-none"
           >
@@ -162,7 +118,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('home')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'home' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'home'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               Home
@@ -170,7 +128,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('lost-items')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'lost-items' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'lost-items'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               Lost Items
@@ -178,7 +138,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('found-items')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'found-items' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'found-items'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               Found Items
@@ -186,7 +148,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('how-it-works')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'how-it-works' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'how-it-works'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               How It Works
@@ -194,7 +158,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('about')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'about' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'about'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               About Us
@@ -202,7 +168,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               onClick={() => setCurrentTab('college-register')}
               className={`px-3 py-2 rounded-lg transition ${
-                currentTab === 'college-register' ? 'bg-slate-800 text-sky-400 font-semibold' : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
+                currentTab === 'college-register'
+                  ? 'bg-slate-800 text-sky-400 font-semibold'
+                  : 'text-slate-300 hover:text-white hover:bg-slate-800/60'
               }`}
             >
               Register College
@@ -267,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                           No notifications yet.
                         </div>
                       ) : (
-                        notifications.map(n => (
+                        notifications.map((n) => (
                           <div
                             key={n.id}
                             onClick={() => handleMarkAsRead(n.id)}
@@ -278,7 +246,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                             <div className="font-semibold text-white flex items-center justify-between">
                               <span>{n.title}</span>
                               <span className="text-[10px] text-slate-400 font-normal">
-                                {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                {new Date(n.created_at).toLocaleTimeString([], {
+                                  hour: '2-digit',
+                                  minute: '2-digit',
+                                })}
                               </span>
                             </div>
                             <p className="text-slate-300 mt-1 leading-relaxed text-[11px]">{n.message}</p>
@@ -294,29 +265,45 @@ export const Navbar: React.FC<NavbarProps> = ({
             {/* User Dashboard / Portal Button */}
             {currentUser ? (
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => {
-                    if (currentUser.role === 'super_admin') setCurrentTab('super-admin');
-                    else if (currentUser.role === 'college_admin') setCurrentTab('college-admin');
-                    else setCurrentTab('student-dashboard');
-                  }}
-                  className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
-                >
-                  <img
-                    src={currentUser.avatar_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60'}
-                    alt={currentUser.name}
-                    className="w-6 h-6 rounded-full object-cover border border-sky-400"
-                  />
-                  <div className="text-left">
-                    <span className="block text-xs font-semibold leading-none">{currentUser.name.split(' ')[0]}</span>
-                    <span className="text-[10px] text-sky-400 uppercase tracking-wider">
-                      {currentUser.role === 'super_admin' ? 'Super Admin' : currentUser.role === 'college_admin' ? 'College Admin' : 'Student'}
-                    </span>
-                  </div>
-                </button>
+                {isAdmin ? (
+                  <button
+                    onClick={() => setCurrentTab('admin-portal')}
+                    className="flex items-center gap-2 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-300 px-3 py-1.5 rounded-lg text-xs font-semibold transition"
+                  >
+                    <ShieldCheck className="w-4 h-4 text-amber-400" />
+                    <span>Admin Console</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => setCurrentTab('student-dashboard')}
+                    className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white px-3 py-1.5 rounded-lg text-xs font-medium transition"
+                  >
+                    <img
+                      src={
+                        currentUser.avatar_url ||
+                        'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=60'
+                      }
+                      alt={currentUser.name}
+                      className="w-6 h-6 rounded-full object-cover border border-sky-400"
+                    />
+                    <div className="text-left">
+                      <span className="block text-xs font-semibold leading-none">
+                        {currentUser.name.split(' ')[0]}
+                      </span>
+                      <span className="text-[10px] text-sky-400 uppercase tracking-wider">
+                        Student
+                      </span>
+                    </div>
+                  </button>
+                )}
 
                 <button
-                  onClick={logout}
+                  onClick={() => {
+                    logout();
+                    if (currentTab === 'student-dashboard' || currentTab === 'admin-portal') {
+                      setCurrentTab('home');
+                    }
+                  }}
                   className="p-2 text-slate-400 hover:text-rose-400 hover:bg-slate-800 rounded-lg transition"
                   title="Logout"
                 >
@@ -329,7 +316,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   onClick={() => onOpenAuthModal('login')}
                   className="text-xs font-medium text-slate-200 hover:text-white px-3 py-1.5 rounded-lg hover:bg-slate-800 transition"
                 >
-                  Log In
+                  Student Log In
                 </button>
                 <button
                   onClick={() => onOpenAuthModal('register')}
@@ -364,57 +351,138 @@ export const Navbar: React.FC<NavbarProps> = ({
       {mobileMenuOpen && (
         <div className="md:hidden border-t border-slate-800 bg-slate-900 px-4 pt-3 pb-5 space-y-2">
           <button
-            onClick={() => { setCurrentTab('home'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('home');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             Home
           </button>
           <button
-            onClick={() => { setCurrentTab('lost-items'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('lost-items');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             Lost Items
           </button>
           <button
-            onClick={() => { setCurrentTab('found-items'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('found-items');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             Found Items
           </button>
           <button
-            onClick={() => { setCurrentTab('how-it-works'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('how-it-works');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             How It Works
           </button>
           <button
-            onClick={() => { setCurrentTab('about'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('about');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             About Us
           </button>
           <button
-            onClick={() => { setCurrentTab('college-register'); setMobileMenuOpen(false); }}
+            onClick={() => {
+              setCurrentTab('college-register');
+              setMobileMenuOpen(false);
+            }}
             className="w-full text-left py-2 text-sm text-slate-200 hover:text-white font-medium"
           >
             Register College
           </button>
 
           <div className="pt-2 border-t border-slate-800 flex flex-col gap-2">
+            {currentUser ? (
+              <>
+                <button
+                  onClick={() => {
+                    setCurrentTab(isAdmin ? 'admin-portal' : 'student-dashboard');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-sky-600 text-white py-2 rounded-lg text-xs font-semibold text-center"
+                >
+                  {isAdmin ? 'Open Admin Portal' : 'My Student Dashboard'}
+                </button>
+                <button
+                  onClick={() => {
+                    logout();
+                    setCurrentTab('home');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="w-full bg-slate-800 text-rose-400 py-2 rounded-lg text-xs font-semibold text-center"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => {
+                    onOpenAuthModal('login');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="bg-slate-800 text-white py-2 rounded-lg text-xs font-semibold text-center"
+                >
+                  Student Log In
+                </button>
+                <button
+                  onClick={() => {
+                    onOpenAuthModal('register');
+                    setMobileMenuOpen(false);
+                  }}
+                  className="bg-sky-500 text-white py-2 rounded-lg text-xs font-semibold text-center"
+                >
+                  Register
+                </button>
+              </div>
+            )}
             <button
-              onClick={() => { onOpenReportModal('lost'); setMobileMenuOpen(false); }}
+              onClick={() => {
+                setCurrentTab('admin-portal');
+                setMobileMenuOpen(false);
+              }}
+              className="w-full bg-amber-500/20 border border-amber-500/40 text-amber-300 py-2 rounded-lg text-xs font-semibold text-center flex items-center justify-center gap-1.5"
+            >
+              <ShieldCheck className="w-4 h-4" />
+              Separate Admin Portal
+            </button>
+            <button
+              onClick={() => {
+                onOpenReportModal('lost');
+                setMobileMenuOpen(false);
+              }}
               className="w-full bg-rose-600 text-white py-2 rounded-lg text-xs font-semibold text-center"
             >
               Report Lost Item
             </button>
             <button
-              onClick={() => { onOpenReportModal('found'); setMobileMenuOpen(false); }}
+              onClick={() => {
+                onOpenReportModal('found');
+                setMobileMenuOpen(false);
+              }}
               className="w-full bg-emerald-600 text-white py-2 rounded-lg text-xs font-semibold text-center"
             >
               Report Found Item
             </button>
             <button
-              onClick={() => { onOpenXamppExport(); setMobileMenuOpen(false); }}
+              onClick={() => {
+                onOpenXamppExport();
+                setMobileMenuOpen(false);
+              }}
               className="w-full bg-slate-800 border border-slate-700 text-sky-400 py-2 rounded-lg text-xs font-semibold text-center flex items-center justify-center gap-1.5"
             >
               <FileCode className="w-4 h-4" />

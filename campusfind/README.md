@@ -51,40 +51,7 @@ http://localhost/campusfind/
 
 ---
 
-## 🔑 Pre-Seeded Test Accounts
+## 🔐 Authentication & Access
 
-All accounts use password: `Password@123` (hashed with `password_hash()`):
-
-| Role | Name | Email | Associated College |
-|---|---|---|---|
-| **Super Admin** | Vikramaditya Roy | `superadmin@campusfind.in` | Global (All Colleges) |
-| **College Admin** | Dr. Suresh Kulkarni | `admin.dyp@campusfind.in` | D.Y. Patil College of Engineering |
-| **College Admin** | Prof. Anjali Deshmukh | `admin.pccoe@campusfind.in` | PCCOE |
-| **Student** | Rahul Sharma | `rahul.sharma@dypcoe.edu.in` | D.Y. Patil (TE-COMP-42) |
-| **Student** | Priya Patel | `priya.patel@dypcoe.edu.in` | D.Y. Patil (BE-IT-18) |
-| **Student** | Amit Patil | `amit.patil@pccoepune.org` | PCCOE (SE-MECH-09) |
-
----
-
-## 🎯 Testing Instructions for All 3 Roles
-
-### 1. Test Super Admin Workflow:
-- Login with `superadmin@campusfind.in` / `Password@123`.
-- Go to the Super Admin Dashboard.
-- Notice **MKSSS Cummins College of Engineering for Women** with status `PENDING`.
-- Click **Approve College** to activate the campus and provision its administrator account.
-- View system-wide metrics, active colleges, and complaints.
-
-### 2. Test College Admin Workflow:
-- Login with `admin.dyp@campusfind.in` / `Password@123`.
-- Go to College Admin Dashboard.
-- Notice that only D.Y. Patil records and enrolled students are visible (`college_id` backend isolation).
-- Review pending ownership claims submitted by students.
-- Click **Approve Claim** or confirm physical handover to mark items as **Returned**.
-
-### 3. Test Student Workflow:
-- Login with `rahul.sharma@dypcoe.edu.in` / `Password@123`.
-- Click **Report Lost Item** to report a misplaced belonging with photo and campus location.
-- Notice the **⚡ Smart Item Match Engine**: when a found item matches your description, an instant match alert banner and side-by-side comparison appears!
-- Submit an ownership claim on a found item with identifying proof.
-- Track status on your Student Dashboard.
+- **Student Accounts:** Students register their own accounts via `/campusfind/register.php` by selecting an approved college and setting a password, then sign in at `/campusfind/login.php`.
+- **Separate Admin Portal:** Platform administration is accessible exclusively via `/campusfind/admin-login.php` using the single administrator ID and password to oversee college approvals, claims verification, item moderation, and complaints.

@@ -343,7 +343,7 @@ function verifyCollegeAccess(int $targetCollegeId): bool {
             }`}
           >
             <KeyRound className="w-3.5 h-3.5 text-amber-600" />
-            Sample Test Accounts
+            Access Architecture
           </button>
           <button
             onClick={() => setActiveTab('structure')}
@@ -552,52 +552,39 @@ function verifyCollegeAccess(int $targetCollegeId): bool {
             <div className="space-y-4">
               <div className="bg-amber-50 border border-amber-200 p-4 rounded-2xl">
                 <h4 className="font-bold text-amber-950 text-sm mb-1">
-                  Ready-to-Use Test Accounts for All 3 User Roles
+                  Separate Admin Portal & Student Self-Registration
                 </h4>
                 <p className="text-amber-800 text-xs">
-                  All seeded accounts use password: <code className="bg-white px-2 py-0.5 rounded font-mono font-bold text-slate-900 border border-amber-200">Password@123</code> (hashed with PHP <code className="font-mono">password_hash(..., PASSWORD_BCRYPT)</code>).
+                  Demo login accounts have been disabled. Students register their own accounts, while platform administration is restricted to a single dedicated Admin Portal login.
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {/* Super Admin */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Admin Portal */}
                 <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Super Admin</span>
-                    <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Role A</span>
+                    <span className="font-bold text-slate-900">Separate Admin Portal</span>
+                    <span className="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Single Access</span>
                   </div>
-                  <p className="text-[11px] text-slate-500">Controls whole platform, approves colleges</p>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200 font-mono text-[11px] space-y-1">
-                    <div><strong>Email:</strong> superadmin@campusfind.in</div>
-                    <div><strong>Pass:</strong> Password@123</div>
+                  <p className="text-[11px] text-slate-500">
+                    Controls college approvals, claims verification, item moderation, categories, and complaints via a single Admin ID and Password.
+                  </p>
+                  <div className="bg-white p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-700">
+                    Access via the <strong>Admin Portal</strong> button in the navigation bar (or <code className="font-mono">/campusfind/admin-login.php</code> in PHP).
                   </div>
                 </div>
 
-                {/* College Admin */}
+                {/* Student Registration */}
                 <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">College Admin</span>
-                    <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Role B</span>
+                    <span className="font-bold text-slate-900">Student Accounts</span>
+                    <span className="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Self-Service</span>
                   </div>
-                  <p className="text-[11px] text-slate-500">Manages DY Patil College records & claims</p>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200 font-mono text-[11px] space-y-1">
-                    <div><strong>Email:</strong> admin.dyp@campusfind.in</div>
-                    <div><strong>Pass:</strong> Password@123</div>
-                    <div className="text-[10px] text-slate-400">PCCOE: admin.pccoe@campusfind.in</div>
-                  </div>
-                </div>
-
-                {/* Student */}
-                <div className="bg-slate-50 border border-slate-200 p-4 rounded-2xl space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Student Account</span>
-                    <span className="bg-sky-100 text-sky-800 text-[10px] font-bold px-2 py-0.5 rounded-full">Role C</span>
-                  </div>
-                  <p className="text-[11px] text-slate-500">Reports lost items, files claims, gets notifs</p>
-                  <div className="bg-white p-2.5 rounded-xl border border-slate-200 font-mono text-[11px] space-y-1">
-                    <div><strong>Email:</strong> rahul.sharma@dypcoe.edu.in</div>
-                    <div><strong>Pass:</strong> Password@123</div>
-                    <div className="text-[10px] text-slate-400">Roll: TE-COMP-42</div>
+                  <p className="text-[11px] text-slate-500">
+                    Students sign up with their college email, roll number, department, and password to report lost/found items and file ownership claims.
+                  </p>
+                  <div className="bg-white p-2.5 rounded-xl border border-slate-200 text-[11px] text-slate-700">
+                    Click <strong>Register</strong> in the navbar to create a student account for any approved college.
                   </div>
                 </div>
               </div>
@@ -613,7 +600,8 @@ function verifyCollegeAccess(int $targetCollegeId): bool {
 {`campusfind/
 │
 ├── index.php                 # Public Landing Page & Dynamic Live Stats
-├── login.php                 # Multi-role Login with password_verify()
+├── login.php                 # Student Login with password_verify()
+├── admin-login.php           # Separate Single-ID Admin Portal Login
 ├── register.php              # Student Registration with College Selection
 ├── college-register.php      # New College Onboarding (Status: Pending)
 ├── about.php                 # Mission, Security, and Campus Network

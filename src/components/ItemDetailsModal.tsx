@@ -376,29 +376,38 @@ export const ItemDetailsModal: React.FC<ItemDetailsModalProps> = ({
                   </div>
                 </form>
               ) : (
-                <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200">
-                  <div>
-                    <h4 className="text-xs font-bold text-slate-800">Is this your item?</h4>
-                    <p className="text-[11px] text-slate-500">
-                      Submit an ownership claim with identifying details for admin approval.
-                    </p>
+                <div className="space-y-2">
+                  {errorMsg && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 flex items-center gap-2">
+                      <AlertCircle className="w-4 h-4 shrink-0" />
+                      <span>{errorMsg}</span>
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between bg-slate-50 p-4 rounded-2xl border border-slate-200">
+                    <div>
+                      <h4 className="text-xs font-bold text-slate-800">Is this your item?</h4>
+                      <p className="text-[11px] text-slate-500">
+                        Submit an ownership claim with identifying details for admin approval.
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        setErrorMsg('');
+                        if (!currentUser || currentUser.role !== 'student') {
+                          setErrorMsg('Please log in with a student account first.');
+                          return;
+                        }
+                        if (isReporter) {
+                          setErrorMsg('You cannot claim an item you reported yourself.');
+                          return;
+                        }
+                        setShowClaimForm(true);
+                      }}
+                      className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow transition"
+                    >
+                      Claim This Item
+                    </button>
                   </div>
-                  <button
-                    onClick={() => {
-                      if (!currentUser) {
-                        alert('Please log in with a student account first.');
-                        return;
-                      }
-                      if (isReporter) {
-                        alert('You cannot claim an item you reported yourself.');
-                        return;
-                      }
-                      setShowClaimForm(true);
-                    }}
-                    className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold rounded-xl shadow transition"
-                  >
-                    Claim This Item
-                  </button>
                 </div>
               )}
             </div>
